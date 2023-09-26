@@ -1,4 +1,8 @@
 {{ form_start(form) }}
     {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+    {# {{ form_row(form.name) }} #}
+    <button class="btn btn-large waves-effect waves-light pink lighten-1 col s12" style="margin-top: 20px;" type="submit" name="action">
+        Validez la campagne
+        <i class="material-icons right">send</i>
+    </button>
 {{ form_end(form) }}

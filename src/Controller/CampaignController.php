@@ -5,20 +5,23 @@ namespace App\Controller;
 use App\Entity\Campaign;
 use App\Form\CampaignType;
 use App\Repository\CampaignRepository;
+use App\Repository\ParticipantRepository;
+use App\Repository\PaymentRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/campaign')]
 class CampaignController extends AbstractController
 {
     #[Route('/', name: 'app_campaign_index', methods: ['GET'])]
     public function index(CampaignRepository $campaignRepository): Response
     {
+        $allCampaigns = $campaignRepository->findAll();
+
         return $this->render('campaign/index.html.twig', [
-            'campaigns' => $campaignRepository->findAll(),
+            'campaigns' => $allCampaigns,
         ]);
     }
 
@@ -27,14 +30,10 @@ class CampaignController extends AbstractController
     {
         $campaign = new Campaign();
         $form = $this->createForm(CampaignType::class, $campaign);
-
-
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             $campaign->setId();
-
             $entityManager->persist($campaign);
             $entityManager->flush();
             return $this->redirectToRoute('app_campaign_index', [], Response::HTTP_SEE_OTHER);
@@ -47,10 +46,26 @@ class CampaignController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_campaign_show', methods: ['GET'])]
-    public function show(Campaign $campaign): Response
+    public function show(Campaign $campaign, PaymentRepository $paymentRepository, ParticipantRepository $participantRepository): Response
     {
+        $allParticipantsFromCampaign = $participantRepository->findBy(['campaign' => $campaign]);
+        $allPaymentsFromCampaign = $paymentRepository->findBy(['participant' => $allParticipantsFromCampaign]);
+
+        $countParticipants = count($allParticipantsFromCampaign);
+
+        $countTotalAmount = 0;
+        foreach ($allPaymentsFromCampaign as $payment) {
+            $countTotalAmount += $payment->getAmount();
+        }
+
+        $goalProgress = intval(floor($countTotalAmount / $campaign->getGoal() * 100));
+
         return $this->render('campaign/show.html.twig', [
             'campaign' => $campaign,
+            'payments' => $allPaymentsFromCampaign,
+            'countParticipants' => $countParticipants,
+            'countTotalAmount' => $countTotalAmount,
+            'goalProgress' => $goalProgress,
         ]);
     }
 

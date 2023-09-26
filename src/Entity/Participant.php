@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\ParticipantRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ParticipantRepository::class)]
 class Participant
@@ -12,6 +13,7 @@ class Participant
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
+
 
     #[ORM\Column(length: 200, nullable: true)]
     private ?string $name = null;
@@ -22,6 +24,9 @@ class Participant
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?Campaign $campaign = null;
+
+    #[ORM\Column(length: 150, nullable: false)]
+    private ?string $lastname = null;
 
     public function getId(): ?int
     {
@@ -60,6 +65,18 @@ class Participant
     public function setCampaign(?Campaign $campaign): static
     {
         $this->campaign = $campaign;
+
+        return $this;
+    }
+
+    public function getLastname(): ?string
+    {
+        return $this->lastname;
+    }
+
+    public function setLastname(?string $lastname): static
+    {
+        $this->lastname = $lastname;
 
         return $this;
     }
