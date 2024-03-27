@@ -8,3 +8,4 @@ Pour partir de cette correction :
 - ```php bin/console d:m:m``` pour effectuer la migration
 
 ## A vous de jouer pour la suite
+Cette correction comprend tous les basiques du TP sans les bonus
